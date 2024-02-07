@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #3498db, #8e44ad);
+            color: #2c3e50;
+            overflow: hidden;
+        }
+        #scoreboard {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        #scoreboard th, #scoreboard td {
+            border: 1px solid #ddd;
+            padding: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        #scoreboard th {
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+        }
+        button {
+            margin: 15px;
+            padding: 20px;
+            font-size: 18px;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        #over-summary {
+            margin: 20px auto;
+            padding: 20px;
+            width: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        #undo-button {
+            margin: 15px;
+            padding: 20px;
+            font-size: 18px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        #undo-button:hover {
+            background-color: #c0392b;
+        }
+        #undo-icon {
+            display: inline-block;
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+        #undo-button:hover #undo-icon {
+            transform: rotate(360deg);
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap">
+    <script>
+        let runs = 0;
+        let wickets = 0;
+        let balls = 0;
+        let overs = 0;
+        let overSummary = '';
+
+        function updateScoreboard() {
+            document.getElementById('runs').innerText = runs;
+            document.getElementById('wickets').innerText = wickets;
+            document.getElementById('overs').innerText = overs + '.' + balls;
+            document.getElementById('over-summary').innerText = overSummary;
+        }
+
+        function updateRuns(value) {
+            runs += value;
+            balls += 1;
+            recordBall(value);
+            checkOverEnd();
+            updateScoreboard();
+        }
+
+        function updateWickets() {
+            wickets += 1;
+            balls += 1;
+            recordBall('W');
+            checkOverEnd();
+            updateScoreboard();
+        }
+
+        function recordBall(value) {
+            overSummary += value + ' ';
+        }
+
+        function checkOverEnd() {
+            if (balls === 6) {
+                balls = 0;
+                overs += 1;
+                overSummary += '| ';
+                animateOverSummary();
+            }
+        }
+
+        function undoLastAction() {
+            let lastAction = overSummary.trim().split(' ').pop();
+            if (lastAction === '|') {
+                overs -= 1;
+                balls = 6;
+            } else {
+                runs -= parseInt(lastAction) || 0;
+                wickets -= (lastAction === 'W') ? 1 : 0;
+                balls -= 1;
+            }
+            overSummary = overSummary.trim().replace(/\s+\S+$/, '');
+            updateScoreboard();
+        }
+
+        function animateOverSummary() {
+            let summaryElement = document.getElementById('over-summary');
+            summaryElement.classList.add('fade-in');
+            setTimeout(() => {
+                summaryElement.classList.remove('fade-in');
+            }, 500);
+        }
+
+        function rotateUndoIcon() {
+            document.getElementById('undo-icon').style.transform = 'rotate(360deg)';
+        }
+    </script>
+</head>
+<body>
+
+<h1 style="color: #fff; font-weight: bold;">Cricket Scoreboard</h1>
+
+<table id="scoreboard">
+    <tr>
+        <th>Runs</th>
+        <th>Wickets</th>
+        <th>Overs</th>
+    </tr>
+    <tr>
+        <td id="runs">0</td>
+        <td id="wickets">0</td>
+        <td id="overs">0.0</td>
+    </tr>
+</table>
+
+<div id="over-summary" class="fade-in"></div>
+
+<button onclick="updateRuns(4)">Four</button>
+<button onclick="updateRuns(6)">Six</button>
+<button onclick="updateRuns(1)">One</button>
+<button onclick="updateRuns(2)">Two</button>
+<button onclick="updateRuns(3)">Three</button>
+<button onclick="updateRuns(0)">Dot</button>
+<button onclick="updateWickets()">Wicket</button>
+
+<button id="undo-button" onclick="undoLastAction()" onmouseover="rotateUndoIcon()" onmouseout="document.getElementById('undo-icon').style.transform = 'rotate(0deg)';">
+    <span id="undo-icon">&#8634;</span>Undo
+</button>
+
+</body>
+</html>
