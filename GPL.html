@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Scoreboard Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1b262c;
+            color: #bbe1fa;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .scoreboard {
+            background-color: #0f4c75;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            max-width: 400px;
+            margin: auto;
+        }
+        .scoreboard h1 {
+            margin: 0 0 20px;
+        }
+        .scoreboard p {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .buttons button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        .buttons .increment {
+            background-color: #3282b8;
+        }
+        .buttons .decrement {
+            background-color: #d32f2f;
+        }
+        .over-summary {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 18px;
+            padding: 10px;
+            background-color: #3282b8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scoreboard">
+        <h1>Cricket Scoreboard</h1>
+        <p id="score">Score: 0/0</p>
+        <div class="buttons">
+            <button class="increment" onclick="addRuns(1)">1 Run</button>
+            <button class="increment" onclick="addRuns(2)">2 Runs</button>
+            <button class="increment" onclick="addRuns(3)">3 Runs</button>
+            <button class="increment" onclick="addRuns(4)">4 Runs</button>
+            <button class="increment" onclick="addRuns(6)">6 Runs</button>
+            <button class="increment" onclick="incrementWicket()">Add Wicket</button>
+            <button class="increment" onclick="addWide()">Wide</button>
+            <button class="increment" onclick="addNoBall(1)">No Ball + 1 Run</button>
+            <button class="increment" onclick="addNoBall(2)">No Ball + 2 Runs</button>
+            <button class="increment" onclick="addNoBall(3)">No Ball + 3 Runs</button>
+            <button class="increment" onclick="addNoBall(4)">No Ball + 4 Runs</button>
+            <button class="increment" onclick="addNoBall(6)">No Ball + 6 Runs</button>
+            <button class="decrement" onclick="undoLastAction()">Undo Last Action</button>
+        </div>
+        <div class="over-summary">
+            <h2>Current Over</h2>
+            <p id="over">Current Over: </p>
+        </div>
+    </div>
+
+    <script>
+        let runs = 0;
+        let wickets = 0;
+        let balls = 0;
+        let overSummary = [];
+        let lastActions = [];
+
+        function updateScoreboard() {
+            document.getElementById("score").textContent = `Score: ${runs}/${wickets}`;
+            document.getElementById("over").textContent = `Current Over: ${overSummary.join(" ")}`;
+        }
+
+        function addRuns(run) {
+            runs += run;
+            balls++;
+            overSummary.push(run);
+            lastActions.push(run);
+            if (balls % 6 === 0) {
+                overSummary.push("|");
+            }
+            updateScoreboard();
+        }
+
+        function incrementWicket() {
+            if (wickets < 10) {
+                wickets++;
+                balls++;
+                overSummary.push("W");
+                lastActions.push("W");
+                if (balls % 6 === 0) {
+                    overSummary.push("|");
+                }
+            }
+            updateScoreboard();
+        }
+
+        function addWide() {
+            runs++;
+            overSummary.push("Wd");
+            lastActions.push("Wd");
+            updateScoreboard();
+        }
+
+        function addNoBall(run) {
+            runs += run + 1;
+            overSummary.push(`Nb+${run}`);
+            lastActions.push(`Nb+${run}`);
+            updateScoreboard();
+        }
+
+        function undoLastAction() {
+            if (lastActions.length > 0) {
+                let lastAction = lastActions.pop();
+                if (typeof lastAction === "number") {
+                    runs -= lastAction;
+                    balls--;
+                } else if (lastAction === "W") {
+                    wickets--;
+                    balls--;
+                } else if (lastAction.startsWith("Wd")) {
+                    runs--;
+                } else if (lastAction.startsWith("Nb")) {
+                    let run = parseInt(lastAction.split("+")[1]);
+                    runs -= (run + 1);
+                }
+                overSummary.pop();
+                if (overSummary.length > 0 && overSummary[overSummary.length - 1] === "|") {
+                    overSummary.pop();
+                }
+                updateScoreboard();
+            }
+        }
+
+        updateScoreboard();
+    </script>
+</body>
+</html>
